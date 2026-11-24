@@ -211,6 +211,14 @@ in any ultrametric normed field `K` over `ℚ_ℓ`, and closeness is
 centres (`ABound`) are allowed to live in an extension of `ℚ_ℓ`. Layer 3 will
 need the more general form.
 
+**Closed, 24 November.** `exceptional_unique_field` and
+`exceptional_card_le_field` in `VandiverStep/Counting.lean` take the centre in
+any ultrametric normed field `K` over `ℚ_ℓ`, with closeness
+`‖s − h‖ < ℓ^(−k)` and `N < ℓ^(k+1)`. Taking `k = ⌊log_ℓ Z⌋` and `N = Z` gives
+the archive's `near1`, with integer twists where it has naturals.
+`exceptional_unique'` re-derives the `ℤ_ℓ` statement from the field version.
+All three: no `sorry`, axioms `propext`, `Classical.choice`, `Quot.sound`.
+
 ## Placeholder check
 
 - `shaLen D e` is `Module.length ℤ_ℓ (Sha D e)`. `Sha` is `Sha1`: the
