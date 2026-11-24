@@ -116,8 +116,10 @@ New claims, where an error would live:
 
 1. The plus-part bound itself. I know of no published unconditional bound of
    this strength. (From memory, not checked against the literature.)
-2. `LemmaK`, if its `kBound` is better than Soulé-type bounds for torsion in
-   K-groups of rings of integers. I have not read `kBound`.
+2. `LemmaK`. Read on 24 November: `kBound C e n D = exp((2en)^C · log 2D)`,
+   so it bounds `log #H²` by a quantity exponential in a power of `e·n`. That
+   is the shape of Soulé-type bounds for K-groups, not an obviously new claim.
+   Not compared with the literature.
 3. `Row0b` in the generality stated. Results of this kind are published, but
    the archive's exact hypotheses need comparing with them.
 
@@ -161,3 +163,103 @@ has 4 cores and 15 GB of memory.
 - The archive defines the same notion several times in different namespaces
   (`H1`, `Sha1`, `GS` each appear in at least two files). Any bridge lemma has
   to name which copy it uses.
+
+---
+
+# Update, 24 November 2026: layers 1 and 2, and the archive's window argument
+
+## Proved here (Mathlib only, no `sorry`)
+
+| Theorem | File | Axioms |
+|---|---|---|
+| `interval_lemma` | `VandiverStep/IntervalLemma.lean` | `propext`, `Classical.choice`, `Quot.sound` |
+| `interval_lemma_finset` | same | same |
+| `exceptional_unique` | `VandiverStep/Counting.lean` | same |
+| `exceptional_card_le` | same | same |
+
+The three drafted statements compiled unchanged. `interval_lemma_finset` is an
+addition: the interval lemma restated in the archive's shape and deduced from
+`interval_lemma`.
+
+## Where the declarations are
+
+| Name | File (under `src/`) |
+|---|---|
+| `UpperTheory.Top.VWinAt`, `VWin`, `VAt`, `VVle` | `Development/AutomorphicArithmetic/CharacterBoxes/ExistsPageN.lean` |
+| `Formalism.GaloisCohomology.shaLen`, `Sha`, `LData` | `Formalism/GaloisCohomology/Statement.lean` |
+| `UpperTheory.V.Win.window1` | `Development/AutomorphicArithmetic/AutomorphicVarieties/LayeredIsomorphisms/Window1.lean` |
+| `UpperTheory.V.Win.window`, `near1`, `exc`, `partA`, `partB`, `thmBab_of` | same directory |
+
+## `window1` versus `interval_lemma`
+
+Same statement, same constants. The archive takes a `Finset ℝ` of at most `R`
+left endpoints and writes disjointness as "`y ≤ u ≤ 2y` and `a ≤ u` imply
+`B·a ≤ u`". `interval_lemma_finset` proves exactly that shape from ours. The
+proofs differ: the archive inducts on `R`, ours is a pigeonhole over `R + 1`
+windows.
+
+It is used once, in `window`, with `U = log X`, `B = Ct/η` and endpoints
+`log e / Ct` for `e` in the exceptional set. A twist `e` is harmful at scale
+`x` when `x^η < e ≤ x^Ct`, which is `log x ∈ [log e / Ct, log e / η)`.
+
+## The counting step in the archive: a mismatch with ours
+
+`near1` is the archive's version of `exceptional_unique`. Its centre `s` lies
+in any ultrametric normed field `K` over `ℚ_ℓ`, and closeness is
+`‖s − a‖ < ℓ^(−⌊log_ℓ Z⌋)`. Ours takes the centre in `ℤ_ℓ`. With
+`k = ⌊log_ℓ Z⌋` and `N = Z` the two agree when `K = ℚ_ℓ`, but the archive's
+centres (`ABound`) are allowed to live in an extension of `ℚ_ℓ`. Layer 3 will
+need the more general form.
+
+## Placeholder check
+
+- `shaLen D e` is `Module.length ℤ_ℓ (Sha D e)`. `Sha` is `Sha1`: the
+  intersection of the kernels of restriction to the decomposition groups at
+  the chosen places above `ℓ`, inside continuous `H¹` of
+  `G_S = Gal(Ω/E) / closure(normal closure of inertia outside S)` with
+  coefficients `ℚ_ℓ/ℤ_ℓ` twisted by `χ_cyc^(−e)`. Every layer is a real
+  definition down to Mathlib (`cyclotomicCharacter`, `ValuationSubring`,
+  `Module.length`, the Krull topology).
+- `VWinAt` unfolds to `PageN`, `WinPair`, `IsChiField`, `VVle`, all written
+  out; none is `True` or a constant.
+- The archive has 8 definitions of the form `… : Prop := True` (names like
+  `UnusedSlot55`, `NoCondition`). None is in the files `VWinAt`'s statement
+  depends on.
+- `VVle` quantifies over all `LData`. If `LData` were empty the bound would be
+  vacuous; the archive has `ldataExists : LDataExists`.
+- Not checked: that the hypotheses of `VWinAt` (`WinPair`, `IsChiField`) are
+  satisfiable. That is settled by whoever consumes `VWin`, on the other side
+  of the proof.
+- `FerreroWashington` and `PoitouTateDuality` are `Prop`s passed as arguments
+  to `thmBab_of_lemmaK`. The archive has a hypothesis-free theorem
+  `UpperTheory.V.FW.ferreroWashington : Published.FerreroWashington`, so it
+  claims to prove Ferrero–Washington rather than assume it. Its statement is
+  the bounded-`ℓ`-rank form: `#(Cl(K')/ℓ) ≤ ℓ^r` up the cyclotomic tower.
+
+## How the sum over all primes is handled
+
+The Iwasawa-and-window argument does not run over all primes. It runs over a
+finite set fixed in advance:
+
+- `ℓ = 2` (`TwoIn`, `ThmBa`), because the fields `E` climb the 2-power
+  cyclotomic tower as `x` grows.
+- the odd primes in `Bchi ψ`: 3 and the odd prime factors of a number
+  depending only on the character (`FixedIn`, `ThmBb`).
+
+The number of centres is `R = R0 + ∑_{ℓ ∈ B'} Rl ℓ`, and the window constant
+`J = 2^(R+2)·(2·CK·Ct/ε)^R` is `window1`'s constant for that total.
+
+Every other prime is handled without a tower, for all `ℓ` at once:
+
+- minus eigenspace of complex conjugation: `ThmBc`, with the explicit bound
+  `minusBound` (class-number-formula size);
+- plus eigenspace: `ThmHV`, which takes the window above as a hypothesis and
+  comes from the Galois-representation counts `CountI`–`CountV`.
+
+`vvle_of_parts` adds the three bounds. So the outside guide's sketch (fix
+`ℓ`, count centres) describes only the finitely many tower primes.
+
+## A discrepancy to fix in the handoff brief
+
+The brief gives the bound as `exp(x^(ε/2))`. The archive has
+`Real.sqrt (Real.exp (x ^ eps))`, which is `exp(x^ε / 2)`. These differ.
